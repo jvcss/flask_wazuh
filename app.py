@@ -25,4 +25,4 @@ def upload_file():
         return f'File successfully uploaded to {file_path}'
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='18.228.6.245', port=5000, debug=False)
