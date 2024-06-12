@@ -166,7 +166,7 @@ resource "null_resource" "install_dependencies" {
       "echo 'Group=ec2-user' | sudo tee -a /etc/systemd/system/flaskapp.service",
       "echo 'WorkingDirectory=/home/ec2-user/app' | sudo tee -a /etc/systemd/system/flaskapp.service",
       "echo 'Environment=\"PATH=/usr/bin\"' | sudo tee -a /etc/systemd/system/flaskapp.service",
-      "echo 'ExecStart=/usr/local/bin/gunicorn -w 4 -b 0.0.0.0:5000 app:app' | sudo tee -a /etc/systemd/system/flaskapp.service",
+      "echo 'ExecStart=/usr/local/bin/gunicorn -w 4 -b 0.0.0.0:80 app:app' | sudo tee -a /etc/systemd/system/flaskapp.service",
       "echo '' | sudo tee -a /etc/systemd/system/flaskapp.service",
       "echo '[Install]' | sudo tee -a /etc/systemd/system/flaskapp.service",
       "echo 'WantedBy=multi-user.target' | sudo tee -a /etc/systemd/system/flaskapp.service",
