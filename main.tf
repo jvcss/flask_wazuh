@@ -138,7 +138,7 @@ resource "aws_instance" "app_server" {
   associate_public_ip_address = true  # Isso garante que a instância tenha um IP público
 
   tags = {
-    Name = "AppServerInstance7"
+    Name = "AppFlaskWazuh"
   }
 
   provisioner "local-exec" {
