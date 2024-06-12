@@ -124,7 +124,7 @@ resource "aws_security_group" "allow_ssh_http_https" {
 
 # Instalação da chave RSA para SSH
 resource "aws_key_pair" "deployer_key" {
-  key_name   = "deployer_key"
+  key_name   = "deployer"
   public_key = file("C:/Users/vitim/.ssh/novarsa.pub")
 }
 
@@ -165,8 +165,8 @@ resource "null_resource" "install_dependencies" {
       "echo 'User=ec2-user' | sudo tee -a /etc/systemd/system/flaskapp.service",
       "echo 'Group=ec2-user' | sudo tee -a /etc/systemd/system/flaskapp.service",
       "echo 'WorkingDirectory=/home/ec2-user/app' | sudo tee -a /etc/systemd/system/flaskapp.service",
-      "echo 'Environment=\"PATH=/usr/bin\"' | sudo tee -a /etc/systemd/system/flaskapp.service",
-      "echo 'ExecStart=/usr/local/bin/gunicorn -w 4 -b 0.0.0.0:80 app:app' | sudo tee -a /etc/systemd/system/flaskapp.service",
+      "echo 'Environment=\"PATH=/usr/bin:/bin:/home/ec2-user/.local/bin\"' | sudo tee -a /etc/systemd/system/flaskapp.service",
+      "echo 'ExecStart=/home/ec2-user/.local/bin/gunicorn -w 4 -b 0.0.0.0:80 app:app' | sudo tee -a /etc/systemd/system/flaskapp.service",
       "echo '' | sudo tee -a /etc/systemd/system/flaskapp.service",
       "echo '[Install]' | sudo tee -a /etc/systemd/system/flaskapp.service",
       "echo 'WantedBy=multi-user.target' | sudo tee -a /etc/systemd/system/flaskapp.service",
