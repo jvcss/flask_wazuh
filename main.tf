@@ -160,7 +160,7 @@ resource "null_resource" "install_dependencies" {
       "echo 'Group=ec2-user' | sudo tee -a /etc/systemd/system/flaskapp.service",
       "echo 'WorkingDirectory=/home/ec2-user/app' | sudo tee -a /etc/systemd/system/flaskapp.service",
       "echo 'Environment=\"PATH=/usr/bin:/bin:/home/ec2-user/.local/bin\"' | sudo tee -a /etc/systemd/system/flaskapp.service",
-      "echo 'ExecStart=/home/ec2-user/.local/bin/gunicorn -w 4 -b 0.0.0.0:80 app:app' | sudo tee -a /etc/systemd/system/flaskapp.service",
+      "echo 'ExecStart=/home/ec2-user/.local/bin/gunicorn -w 4 -b 0.0.0.0:5000 app:app' | sudo tee -a /etc/systemd/system/flaskapp.service",
       "echo '' | sudo tee -a /etc/systemd/system/flaskapp.service",
       "echo '[Install]' | sudo tee -a /etc/systemd/system/flaskapp.service",
       "echo 'WantedBy=multi-user.target' | sudo tee -a /etc/systemd/system/flaskapp.service",
@@ -179,3 +179,30 @@ resource "null_resource" "install_dependencies" {
   depends_on = [aws_instance.app_server]
 }
 
+resource "null_resource" "install_nginx" {
+  provisioner "remote-exec" {
+    inline = [
+      "sudo yum install -y nginx",
+      "sudo systemctl start nginx",
+      "sudo systemctl enable nginx",
+      "echo 'server {' | sudo tee /etc/nginx/conf.d/flaskapp.conf",
+      "echo '    listen 80;' | sudo tee -a /etc/nginx/conf.d/flaskapp.conf",
+      "echo '    server_name _;' | sudo tee -a /etc/nginx/conf.d/flaskapp.conf",
+      "echo '    location / {' | sudo tee -a /etc/nginx/conf.d/flaskapp.conf",
+      "echo '        proxy_pass http://127.0.0.1:5000;' | sudo tee -a /etc/nginx/conf.d/flaskapp.conf",
+      "echo '        proxy_set_header Host $host;' | sudo tee -a /etc/nginx/conf.d/flaskapp.conf",
+      "echo '        proxy_set_header X-Real-IP $remote_addr;' | sudo tee -a /etc/nginx/conf.d/flaskapp.conf",
+      "echo '        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;' | sudo tee -a /etc/nginx/conf.d/flaskapp.conf",
+      "echo '        proxy_set_header X-Forwarded-Proto $scheme;' | sudo tee -a /etc/nginx/conf.d/flaskapp.conf",
+      "echo '    }' | sudo tee -a /etc/nginx/conf.d/flaskapp.conf",
+      "echo '}' | sudo tee -a /etc/nginx/conf.d/flaskapp.conf",
+      "sudo systemctl restart nginx"
+    ]
+    connection {
+      host = aws_instance.app_server.public_dns
+      user = "ec2-user"
+      private_key = file("C:/Users/vitim/.ssh/novarsa.pem")
+    }
+  }
+  depends_on = [aws_instance.app_server, null_resource.install_dependencies]
+}
