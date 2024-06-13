@@ -122,17 +122,11 @@ resource "aws_security_group" "allow_ssh_http_https" {
   }
 }
 
-# Instalação da chave RSA para SSH
-resource "aws_key_pair" "deployer_key" {
-  key_name   = "deployer"
-  public_key = file("C:/Users/vitim/.ssh/novarsa.pub")
-}
-
 # Criação da instância EC2
 resource "aws_instance" "app_server" {
   ami                         = data.aws_ami.amzn_linux.id
   instance_type               = "t2.micro"
-  key_name                    = aws_key_pair.deployer_key.key_name
+  key_name                    = "novarsa"
   subnet_id                   = aws_subnet.main.id
   vpc_security_group_ids      = [aws_security_group.allow_ssh_http_https.id]
   associate_public_ip_address = true  # Isso garante que a instância tenha um IP público
@@ -146,7 +140,7 @@ resource "aws_instance" "app_server" {
   }
 }
 
-# Automatiza Continuos Deploy com Docker Compose
+# Automatiza Continuos Deploy
 resource "null_resource" "install_dependencies" {
   provisioner "remote-exec" {
     inline = [
